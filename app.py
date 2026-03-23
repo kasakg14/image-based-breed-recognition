@@ -370,7 +370,7 @@ def inject_styles() -> None:
     )
 
 
-st.set_page_config(page_title="Indian Cattle & Buffalo Breed Recognition", layout="wide")
+st.set_page_config(page_title="PASHUPAHECHAN", layout="wide")
 inject_styles()
 
 rebuilt_index, indexed_breeds = ensure_reference_index()
@@ -389,10 +389,10 @@ with hero_col:
         """
         <div class="hero-shell">
             <div class="hero-kicker">Indian Livestock Vision</div>
-            <div class="hero-title">Breed recognition for Indian cattle and buffaloes</div>
+            <div class="hero-title">PASHUPAHECHAN</div>
             <p class="hero-copy">
-                Upload a field photo, compare it against your local breed library, and get fast offline predictions
-                that are simple enough for farm teams, students, and extension workers to use.
+                Breed recognition for Indian cattle and buffaloes with fast offline predictions for field teams,
+                students, and livestock extension workers.
             </p>
         </div>
         """,
