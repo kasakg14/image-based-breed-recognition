@@ -88,6 +88,56 @@ def ensure_reference_index() -> tuple[bool, int]:
     return False, len(recognizer.reference_vectors)
 
 
+def render_hero_art() -> str:
+    return """
+    <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of Indian cattle and buffalo landscape">
+      <defs>
+        <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#8fd0ff"/>
+          <stop offset="100%" stop-color="#fff7e0"/>
+        </linearGradient>
+        <linearGradient id="ground" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#7fbf6e"/>
+          <stop offset="100%" stop-color="#d7a14a"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="420" rx="34" fill="url(#sky)"/>
+      <circle cx="535" cy="88" r="46" fill="#ffd15c" opacity="0.95"/>
+      <path d="M0 255C119 219 168 272 251 261C352 248 390 185 485 201C545 211 595 245 640 231V420H0Z" fill="url(#ground)"/>
+      <path d="M0 302C119 286 208 332 296 310C377 289 455 257 558 290C585 299 611 310 640 303V420H0Z" fill="#5a9850" opacity="0.65"/>
+      <g transform="translate(78 153)">
+        <ellipse cx="132" cy="123" rx="106" ry="66" fill="#f4f0e6"/>
+        <ellipse cx="214" cy="94" rx="49" ry="42" fill="#f4f0e6"/>
+        <path d="M220 70L249 45L242 82Z" fill="#cf7b4b"/>
+        <path d="M192 70L161 42L172 83Z" fill="#cf7b4b"/>
+        <circle cx="225" cy="92" r="5.5" fill="#1d2940"/>
+        <path d="M251 109Q274 115 288 139" stroke="#cf7b4b" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <rect x="82" y="173" width="16" height="98" rx="8" fill="#76513b"/>
+        <rect x="142" y="173" width="16" height="98" rx="8" fill="#76513b"/>
+        <rect x="208" y="168" width="16" height="103" rx="8" fill="#76513b"/>
+        <rect x="254" y="165" width="16" height="106" rx="8" fill="#76513b"/>
+        <path d="M52 126Q31 89 9 99" stroke="#76513b" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </g>
+      <g transform="translate(336 186)">
+        <ellipse cx="110" cy="103" rx="92" ry="59" fill="#2b324b"/>
+        <ellipse cx="183" cy="86" rx="45" ry="39" fill="#2b324b"/>
+        <path d="M153 69Q128 34 97 31" stroke="#2b324b" stroke-width="12" stroke-linecap="round" fill="none"/>
+        <path d="M211 66Q242 21 281 30" stroke="#2b324b" stroke-width="12" stroke-linecap="round" fill="none"/>
+        <circle cx="192" cy="85" r="5.5" fill="#f5f1e8"/>
+        <rect x="66" y="154" width="15" height="90" rx="7" fill="#1d2235"/>
+        <rect x="119" y="154" width="15" height="90" rx="7" fill="#1d2235"/>
+        <rect x="167" y="149" width="15" height="95" rx="7" fill="#1d2235"/>
+        <rect x="210" y="150" width="15" height="94" rx="7" fill="#1d2235"/>
+      </g>
+      <g opacity="0.25">
+        <circle cx="95" cy="66" r="18" fill="#ffffff"/>
+        <circle cx="122" cy="66" r="22" fill="#ffffff"/>
+        <circle cx="145" cy="70" r="16" fill="#ffffff"/>
+      </g>
+    </svg>
+    """
+
+
 def inject_styles() -> None:
     st.markdown(
         """
@@ -164,6 +214,22 @@ def inject_styles() -> None:
             line-height: 1.7;
             max-width: 48rem;
             margin: 0;
+        }
+
+        .hero-art-shell {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,244,224,0.90));
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            padding: 0.7rem;
+            box-shadow: 0 18px 46px rgba(29, 41, 64, 0.12);
+            height: 100%;
+        }
+
+        .hero-art-shell svg {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 22px;
         }
 
         .metric-card {
@@ -317,19 +383,23 @@ elif rebuilt_index:
 recognizer: BreedRecognizer = st.session_state.recognizer
 backend_label = "Local CNN Extractor" if recognizer.backend == "offline-cnn" else "Handcrafted Offline Extractor"
 
-st.markdown(
-    """
-    <div class="hero-shell">
-        <div class="hero-kicker">Indian Livestock Vision</div>
-        <div class="hero-title">Breed recognition for Indian cattle and buffaloes</div>
-        <p class="hero-copy">
-            Upload a field photo, compare it against your local breed library, and get fast offline predictions
-            that are simple enough for farm teams, students, and extension workers to use.
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+hero_col, art_col = st.columns([1.2, 0.95], gap="large")
+with hero_col:
+    st.markdown(
+        """
+        <div class="hero-shell">
+            <div class="hero-kicker">Indian Livestock Vision</div>
+            <div class="hero-title">Breed recognition for Indian cattle and buffaloes</div>
+            <p class="hero-copy">
+                Upload a field photo, compare it against your local breed library, and get fast offline predictions
+                that are simple enough for farm teams, students, and extension workers to use.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with art_col:
+    st.markdown(f'<div class="hero-art-shell">{render_hero_art()}</div>', unsafe_allow_html=True)
 
 metric_col1, metric_col2, metric_col3 = st.columns(3)
 with metric_col1:
