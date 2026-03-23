@@ -24,10 +24,18 @@ class Prediction:
     confidence: float
 
 
+@dataclass
+class ReferenceEntry:
+    breed: str
+    image_name: str
+    vector: np.ndarray
+    image_hash: str
+
+
 class BreedRecognizer:
     def __init__(self, index_path: str = "models/reference_index.json") -> None:
         self.index_path = Path(index_path)
-        self.reference_vectors: Dict[str, np.ndarray] = {}
+        self.reference_entries: List[ReferenceEntry] = []
         self.backend = "offline-handcrafted"
         self.device = "cpu"
         self.model = None
@@ -65,17 +73,42 @@ class BreedRecognizer:
 
     def _load_index(self) -> None:
         if not self.index_path.exists():
-            self.reference_vectors = {}
+            self.reference_entries = []
             return
 
         with self.index_path.open("r", encoding="utf-8") as f:
             raw = json.load(f)
-        self.reference_vectors = {
-            breed: np.array(vector, dtype=np.float32) for breed, vector in raw.items()
-        }
+
+        entries: List[ReferenceEntry] = []
+
+        if isinstance(raw, dict) and "entries" in raw:
+            for item in raw["entries"]:
+                entries.append(
+                    ReferenceEntry(
+                        breed=item["breed"],
+                        image_name=item.get("image_name", ""),
+                        vector=np.array(item["vector"], dtype=np.float32),
+                        image_hash=item.get("image_hash", ""),
+                    )
+                )
+        else:
+            for breed, vector in raw.items():
+                entries.append(
+                    ReferenceEntry(
+                        breed=breed,
+                        image_name="centroid",
+                        vector=np.array(vector, dtype=np.float32),
+                        image_hash="",
+                    )
+                )
+
+        self.reference_entries = entries
 
     def is_ready(self) -> bool:
-        return len(self.reference_vectors) > 0
+        return len(self.reference_entries) > 0
+
+    def breed_count(self) -> int:
+        return len({entry.breed for entry in self.reference_entries})
 
     def extract_embedding(self, image: Image.Image) -> np.ndarray:
         image = image.convert("RGB")
@@ -119,6 +152,20 @@ class BreedRecognizer:
         return self._normalize(features)
 
     @staticmethod
+    def image_hash(image: Image.Image, size: int = 8) -> str:
+        grayscale = ImageOps.grayscale(image.convert("RGB")).resize((size, size))
+        pixels = np.asarray(grayscale, dtype=np.float32)
+        threshold = float(pixels.mean())
+        bits = ["1" if value >= threshold else "0" for value in pixels.flatten()]
+        return "".join(bits)
+
+    @staticmethod
+    def hamming_distance(hash_a: str, hash_b: str) -> int:
+        if not hash_a or not hash_b or len(hash_a) != len(hash_b):
+            return 999
+        return sum(bit_a != bit_b for bit_a, bit_b in zip(hash_a, hash_b))
+
+    @staticmethod
     def _normalize(vector: np.ndarray) -> np.ndarray:
         norm = np.linalg.norm(vector) + 1e-10
         return vector / norm
@@ -127,18 +174,45 @@ class BreedRecognizer:
     def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
         return float(np.dot(a, b) / ((np.linalg.norm(a) + 1e-10) * (np.linalg.norm(b) + 1e-10)))
 
-    def predict(self, image: Image.Image, top_k: int = 3) -> List[Prediction]:
+    def predict(self, image: Image.Image, top_k: int = 3, vote_k: int = 7) -> List[Prediction]:
         if not self.is_ready():
             return []
 
+        query_hash = self.image_hash(image)
+        closest_reference = min(
+            self.reference_entries,
+            key=lambda entry: self.hamming_distance(query_hash, entry.image_hash),
+            default=None,
+        )
+        if closest_reference is not None:
+            hash_distance = self.hamming_distance(query_hash, closest_reference.image_hash)
+            if hash_distance <= 2:
+                return [Prediction(breed=closest_reference.breed, confidence=0.99)]
+
         query_embedding = self.extract_embedding(image)
-        scores: List[Prediction] = []
-        for breed, ref_vector in self.reference_vectors.items():
-            if ref_vector.shape != query_embedding.shape:
+        image_matches: List[tuple[str, float]] = []
+
+        for entry in self.reference_entries:
+            if entry.vector.shape != query_embedding.shape:
                 continue
-            sim = self._cosine_similarity(query_embedding, ref_vector)
-            conf = max(0.0, min(1.0, (sim + 1.0) / 2.0))
+            sim = self._cosine_similarity(query_embedding, entry.vector)
+            image_matches.append((entry.breed, sim))
+
+        if not image_matches:
+            return []
+
+        image_matches.sort(key=lambda item: item[1], reverse=True)
+        nearest = image_matches[: min(vote_k, len(image_matches))]
+
+        breed_scores: Dict[str, List[float]] = {}
+        for breed, similarity in nearest:
+            breed_scores.setdefault(breed, []).append(similarity)
+
+        scores: List[Prediction] = []
+        for breed, similarities in breed_scores.items():
+            weighted_similarity = float(np.mean(similarities) + 0.05 * (len(similarities) - 1))
+            conf = max(0.0, min(1.0, (weighted_similarity + 1.0) / 2.0))
             scores.append(Prediction(breed=breed, confidence=conf))
 
-        scores.sort(key=lambda x: x.confidence, reverse=True)
+        scores.sort(key=lambda item: item.confidence, reverse=True)
         return scores[:top_k]
