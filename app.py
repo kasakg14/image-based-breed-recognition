@@ -95,14 +95,16 @@ def inject_styles() -> None:
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
 
         :root {
-            --ink: #1d2940;
-            --muted: #5f6c7b;
-            --sand: #f7f1e6;
-            --leaf: #51643c;
-            --rust: #b95c2e;
-            --gold: #d7a94b;
-            --panel: rgba(255, 252, 245, 0.78);
-            --line: rgba(29, 41, 64, 0.08);
+            --ink: #1b2440;
+            --muted: #5d6486;
+            --sand: #fff5dd;
+            --leaf: #2f7d4f;
+            --rust: #ef6a3c;
+            --gold: #f4b942;
+            --berry: #d94f70;
+            --sky: #4ba3f2;
+            --panel: rgba(255, 252, 245, 0.82);
+            --line: rgba(27, 36, 64, 0.09);
         }
 
         html, body, [class*="css"] {
@@ -111,9 +113,10 @@ def inject_styles() -> None:
 
         .stApp {
             background:
-                radial-gradient(circle at top right, rgba(215, 169, 75, 0.24), transparent 28%),
-                radial-gradient(circle at left 20%, rgba(81, 100, 60, 0.18), transparent 24%),
-                linear-gradient(180deg, #f4ede0 0%, #fbf8f1 45%, #f5efe4 100%);
+                radial-gradient(circle at top right, rgba(244, 185, 66, 0.30), transparent 26%),
+                radial-gradient(circle at left 18%, rgba(75, 163, 242, 0.18), transparent 24%),
+                radial-gradient(circle at bottom right, rgba(217, 79, 112, 0.16), transparent 22%),
+                linear-gradient(180deg, #fff7e7 0%, #fffdf7 46%, #f8f0ff 100%);
             color: var(--ink);
         }
 
@@ -123,11 +126,13 @@ def inject_styles() -> None:
         }
 
         .hero-shell {
-            background: linear-gradient(135deg, rgba(255,255,255,0.84), rgba(250,240,220,0.84));
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.90), rgba(255,243,211,0.88)),
+                linear-gradient(120deg, rgba(75,163,242,0.08), rgba(217,79,112,0.08));
             border: 1px solid var(--line);
             border-radius: 28px;
             padding: 2rem;
-            box-shadow: 0 16px 50px rgba(62, 44, 19, 0.10);
+            box-shadow: 0 18px 60px rgba(77, 63, 33, 0.14);
             margin-bottom: 1.4rem;
         }
 
@@ -138,7 +143,7 @@ def inject_styles() -> None:
             text-transform: uppercase;
             font-weight: 800;
             color: var(--leaf);
-            background: rgba(81, 100, 60, 0.10);
+            background: linear-gradient(135deg, rgba(47, 125, 79, 0.14), rgba(75, 163, 242, 0.12));
             border-radius: 999px;
             padding: 0.45rem 0.8rem;
             margin-bottom: 1rem;
@@ -148,7 +153,7 @@ def inject_styles() -> None:
             font-size: clamp(2.3rem, 4vw, 4.2rem);
             line-height: 0.95;
             font-weight: 800;
-            color: var(--ink);
+            color: #17213d;
             margin: 0 0 0.9rem 0;
             max-width: 9.5em;
         }
@@ -162,12 +167,13 @@ def inject_styles() -> None:
         }
 
         .metric-card {
-            background: var(--panel);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,247,231,0.88));
             border: 1px solid var(--line);
             border-radius: 22px;
             padding: 1rem 1.1rem;
             min-height: 126px;
-            box-shadow: 0 10px 30px rgba(29, 41, 64, 0.06);
+            box-shadow: 0 12px 36px rgba(29, 41, 64, 0.08);
         }
 
         .metric-label {
@@ -179,7 +185,7 @@ def inject_styles() -> None:
         }
 
         .metric-value {
-            color: var(--ink);
+            color: #182447;
             font-size: 1.9rem;
             font-weight: 800;
             margin-top: 0.45rem;
@@ -193,11 +199,12 @@ def inject_styles() -> None:
         }
 
         .panel-shell {
-            background: rgba(255, 255, 255, 0.75);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,250,240,0.82));
             border: 1px solid var(--line);
             border-radius: 24px;
             padding: 1.35rem;
-            box-shadow: 0 10px 34px rgba(29, 41, 64, 0.06);
+            box-shadow: 0 12px 34px rgba(29, 41, 64, 0.08);
         }
 
         .section-title {
@@ -214,8 +221,9 @@ def inject_styles() -> None:
         }
 
         .result-hero {
-            background: linear-gradient(135deg, rgba(81, 100, 60, 0.12), rgba(215, 169, 75, 0.18));
-            border: 1px solid rgba(81, 100, 60, 0.14);
+            background:
+                linear-gradient(135deg, rgba(47, 125, 79, 0.15), rgba(244, 185, 66, 0.24), rgba(75, 163, 242, 0.14));
+            border: 1px solid rgba(47, 125, 79, 0.16);
             border-radius: 22px;
             padding: 1.2rem 1.25rem;
             margin-bottom: 1rem;
@@ -230,7 +238,7 @@ def inject_styles() -> None:
         }
 
         .result-breed {
-            color: var(--ink);
+            color: #16203b;
             font-size: 2rem;
             font-weight: 800;
             margin-top: 0.4rem;
@@ -247,7 +255,7 @@ def inject_styles() -> None:
             margin: 0.25rem 0.35rem 0 0;
             padding: 0.45rem 0.7rem;
             border-radius: 999px;
-            background: rgba(29, 41, 64, 0.06);
+            background: linear-gradient(135deg, rgba(75, 163, 242, 0.14), rgba(217, 79, 112, 0.14));
             color: var(--ink);
             font-size: 0.88rem;
             font-weight: 600;
@@ -256,30 +264,39 @@ def inject_styles() -> None:
         .workflow-note {
             border-left: 4px solid var(--rust);
             padding: 0.85rem 1rem;
-            background: rgba(185, 92, 46, 0.08);
+            background: linear-gradient(135deg, rgba(239, 106, 60, 0.10), rgba(244, 185, 66, 0.12));
             border-radius: 12px;
             color: var(--ink);
             margin-top: 0.75rem;
         }
 
         div[data-testid="stFileUploaderDropzone"] {
-            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,243,232,0.96));
-            border: 1px dashed rgba(81, 100, 60, 0.35);
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,249,255,0.95));
+            border: 1px dashed rgba(75, 163, 242, 0.42);
             border-radius: 20px;
         }
 
         .stButton > button {
-            background: linear-gradient(135deg, var(--rust), #d3743d);
+            background: linear-gradient(135deg, var(--rust), var(--berry), var(--gold));
             color: white;
             border: none;
             border-radius: 14px;
             padding: 0.72rem 1.1rem;
             font-weight: 800;
-            box-shadow: 0 12px 25px rgba(185, 92, 46, 0.25);
+            box-shadow: 0 14px 28px rgba(217, 79, 112, 0.24);
         }
 
         .stButton > button:hover {
-            background: linear-gradient(135deg, #9d4a22, #c96a32);
+            background: linear-gradient(135deg, #d75629, #c73f61, #e2a22d);
+        }
+
+        div[data-testid="stProgressBar"] > div > div > div {
+            background: linear-gradient(90deg, var(--leaf), var(--sky), var(--gold));
+        }
+
+        div[data-testid="stAlert"] {
+            border-radius: 18px;
+            border: 1px solid rgba(27, 36, 64, 0.08);
         }
         </style>
         """,
