@@ -232,6 +232,17 @@ def ensure_reference_index() -> tuple[bool, int]:
     return False, len(recognizer.reference_vectors)
 
 
+def is_uncertain_prediction(predictions: list) -> bool:
+    if not predictions:
+        return True
+    top_confidence = predictions[0].confidence
+    if top_confidence < 0.60:
+        return True
+    if len(predictions) > 1 and (top_confidence - predictions[1].confidence) < 0.10:
+        return True
+    return False
+
+
 def render_hero_art() -> str:
     return """
     <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cow standing in an Indian farm field">
@@ -492,6 +503,11 @@ with main_col:
             else:
                 best = predictions[0]
                 insight = BREED_INSIGHTS.get(best.breed)
+                if is_uncertain_prediction(predictions):
+                    st.warning(
+                        "Prediction uncertain. The top breed scores are too close or confidence is too low. "
+                        "Please use this result as a hint, not a final identification."
+                    )
                 st.markdown(
                     f"""
                     <div class="result-hero">
