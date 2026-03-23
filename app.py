@@ -56,6 +56,104 @@ BREED_DETAILS = {
     "Toda": "Nilgiri hill buffalo associated with the Toda community and adapted to upland conditions.",
 }
 
+BREED_INSIGHTS = {
+    "Gir": {
+        "title": "Signature field clue",
+        "trait": "Long pendulous ears with a prominent domed forehead are strong visual markers.",
+        "value": "Well known for dairy strength and heat tolerance in hot regions.",
+    },
+    "Sahiwal": {
+        "title": "Signature field clue",
+        "trait": "Reddish coat tone with a deep body and calm dairy-type build.",
+        "value": "One of the most respected indigenous dairy breeds in the subcontinent.",
+    },
+    "Rathi": {
+        "title": "Signature field clue",
+        "trait": "Balanced body frame suited to both milk and hardy village management.",
+        "value": "Useful where farmers want a dual-purpose native breed.",
+    },
+    "Tharparkar": {
+        "title": "Signature field clue",
+        "trait": "Light grey or white body adapted to dry and desert-like conditions.",
+        "value": "Recognized for endurance under scarce water and tough climates.",
+    },
+    "Red Sindhi": {
+        "title": "Signature field clue",
+        "trait": "Deep reddish coloration with a compact dairy-oriented build.",
+        "value": "Performs well in hot regions and low-input systems.",
+    },
+    "Kankrej": {
+        "title": "Signature field clue",
+        "trait": "Large, powerful frame with a characteristic lyre-shaped horn profile.",
+        "value": "Strong dual-purpose breed with both milk and draught importance.",
+    },
+    "Ongole": {
+        "title": "Signature field clue",
+        "trait": "Tall muscular body with a strong hump and broad stance.",
+        "value": "Highly valued for strength and adaptation to tropical conditions.",
+    },
+    "Hariana": {
+        "title": "Signature field clue",
+        "trait": "Clean body lines with a practical draught-type appearance.",
+        "value": "Traditionally appreciated for work capacity and moderate milk output.",
+    },
+    "Hallikar": {
+        "title": "Signature field clue",
+        "trait": "Agile lean frame with a distinctly active draught-breed look.",
+        "value": "Best known historically for speed, endurance, and field work.",
+    },
+    "Deoni": {
+        "title": "Signature field clue",
+        "trait": "Often spotted or patchy coat with a sturdy dual-purpose build.",
+        "value": "Performs well in village systems needing both milk and resilience.",
+    },
+    "Murrah": {
+        "title": "Signature field clue",
+        "trait": "Jet-black body with tightly curled horns is the classic Murrah marker.",
+        "value": "Top Indian buffalo breed for high milk production potential.",
+    },
+    "Jaffarabadi": {
+        "title": "Signature field clue",
+        "trait": "Massive body and heavy drooping horns create a very distinct silhouette.",
+        "value": "Large buffalo breed valued for strength and dairy utility.",
+    },
+    "Mehsana": {
+        "title": "Signature field clue",
+        "trait": "Medium-to-large dairy buffalo with a refined Murrah-Surti type appearance.",
+        "value": "Known for stable milk yield in organized dairy systems.",
+    },
+    "Bhadawari": {
+        "title": "Signature field clue",
+        "trait": "Coppery sheen on the coat can help distinguish this breed visually.",
+        "value": "Milk is often noted for comparatively rich fat content.",
+    },
+    "Surti": {
+        "title": "Signature field clue",
+        "trait": "Sickle-shaped horns and a more compact buffalo body are helpful cues.",
+        "value": "A calm dairy buffalo popular in western India.",
+    },
+    "Nili-Ravi": {
+        "title": "Signature field clue",
+        "trait": "Large dairy buffalo often recognized by white markings on forehead or tail switch.",
+        "value": "Strong dairy breed with a well-established milk reputation.",
+    },
+    "Pandharpuri": {
+        "title": "Signature field clue",
+        "trait": "Very long sword-like horns make this buffalo visually striking.",
+        "value": "Adapted to regional conditions in Maharashtra.",
+    },
+    "Nagpuri": {
+        "title": "Signature field clue",
+        "trait": "Long flat horns and hardy frame suit drier environments.",
+        "value": "Resilient breed for hot and semi-arid landscapes.",
+    },
+    "Toda": {
+        "title": "Signature field clue",
+        "trait": "Compact hill-adapted buffalo type associated with upland grazing landscapes.",
+        "value": "Culturally distinctive breed tied to the Nilgiri highlands.",
+    },
+}
+
 REFERENCE_ROOT = Path("data/reference_images")
 INDEX_PATH = Path("models/reference_index.json")
 
@@ -327,6 +425,36 @@ def inject_styles() -> None:
             margin-top: 0.45rem;
         }
 
+        .insight-card {
+            background: linear-gradient(135deg, rgba(75, 163, 242, 0.14), rgba(244, 185, 66, 0.22), rgba(47, 125, 79, 0.14));
+            border: 1px solid rgba(27, 36, 64, 0.10);
+            border-radius: 20px;
+            padding: 1rem 1.1rem;
+            margin: 0.85rem 0 1rem 0;
+        }
+
+        .insight-title {
+            color: var(--ink);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 800;
+        }
+
+        .insight-trait {
+            color: #16203b;
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.55;
+            margin-top: 0.45rem;
+        }
+
+        .insight-value {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-top: 0.45rem;
+        }
+
         .breed-chip {
             display: inline-block;
             margin: 0.25rem 0.35rem 0 0;
@@ -496,6 +624,7 @@ with main_col:
                 )
             else:
                 best = predictions[0]
+                insight = BREED_INSIGHTS.get(best.breed)
                 st.markdown(
                     f"""
                     <div class="result-hero">
@@ -509,6 +638,18 @@ with main_col:
                     """,
                     unsafe_allow_html=True,
                 )
+
+                if insight:
+                    st.markdown(
+                        f"""
+                        <div class="insight-card">
+                            <div class="insight-title">{insight["title"]}</div>
+                            <div class="insight-trait">{insight["trait"]}</div>
+                            <div class="insight-value">{insight["value"]}</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
 
                 for index, pred in enumerate(predictions, start=1):
                     st.markdown(f"**{index}. {pred.breed}**")
