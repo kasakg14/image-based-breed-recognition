@@ -9,6 +9,132 @@ from scripts.build_index import build_reference_index, collect_images
 from src.breed_recognition import BreedRecognizer
 
 
+LANGUAGE_OPTIONS = {
+    "English": "en",
+    "हिंदी": "hi",
+    "मराठी": "mr",
+}
+
+TEXT = {
+    "en": {
+        "page_title": "PASHUPAHECHAN",
+        "lang": "Language",
+        "hero_kicker": "Indian Livestock Vision",
+        "hero_title": "पशुपहचान",
+        "hero_copy": "Breed recognition for Indian cattle and buffaloes with fast offline predictions for field teams, students, and livestock extension workers.",
+        "indexed_breeds": "Indexed Breeds",
+        "indexed_breeds_sub": "Breed folders currently ready for matching.",
+        "recognition_mode": "Recognition Mode",
+        "recognition_mode_sub": "Runs offline and remains usable even with poor connectivity.",
+        "index_status": "Index Status",
+        "index_status_sub": "Reference images are checked and indexed automatically.",
+        "rebuilt": "Rebuilt at startup",
+        "ready": "Ready for prediction",
+        "waiting": "Waiting for dataset",
+        "supported": "Supported breeds",
+        "supported_copy": "Starter support includes major Indian cattle and buffalo breeds.",
+        "workflow_note": "Add more images in data/reference_images/<breed_name>/. The app rebuilds its breed index automatically on startup.",
+        "upload_title": "Upload and analyze",
+        "upload_copy": "Use a clear side-view or near-profile animal image. Similar lighting and less background clutter improve matching.",
+        "upload_label": "Upload image",
+        "prediction_count": "Number of predictions",
+        "upload_caption": "Uploaded field image",
+        "predict": "Predict Breed",
+        "spinner": "Analyzing image and comparing with reference breeds...",
+        "no_index": "No usable reference index was found. Add breed images to data/reference_images/<breed_name>/ and restart the app.",
+        "most_likely": "Most likely match",
+        "confidence": "Confidence",
+        "match_confidence": "match confidence",
+        "insight_title": "Signature field clue",
+        "upload_prompt": "Upload a cattle or buffalo image to begin recognition.",
+        "field_guidance": "Field guidance",
+        "field_guidance_copy": "This baseline app compares images against your local breed library. It works best when each breed folder has multiple clear examples from similar angles. For higher accuracy, the next step would be training a dedicated classifier on a larger labeled dataset.",
+        "offline_cnn": "Offline mode active: local CNN feature extractor loaded.",
+        "offline_hand": "Offline mode active: built-in handcrafted image features loaded. No internet required.",
+        "backend_cnn": "Local CNN Extractor",
+        "backend_hand": "Handcrafted Offline Extractor",
+        "breed_fallback": "More breed information can be added here.",
+    },
+    "hi": {
+        "page_title": "पशुपहचान",
+        "lang": "भाषा",
+        "hero_kicker": "भारतीय पशुधन दृष्टि",
+        "hero_title": "पशुपहचान",
+        "hero_copy": "भारतीय गायों और भैंसों की नस्ल पहचान के लिए तेज ऑफलाइन अनुमान, जो फील्ड टीम, छात्रों और पशुपालन कार्यकर्ताओं के लिए उपयोगी है।",
+        "indexed_breeds": "सूचीबद्ध नस्लें",
+        "indexed_breeds_sub": "मिलान के लिए उपलब्ध नस्ल फ़ोल्डर।",
+        "recognition_mode": "पहचान मोड",
+        "recognition_mode_sub": "यह ऑफलाइन चलता है और कमजोर नेटवर्क में भी उपयोगी रहता है।",
+        "index_status": "इंडेक्स स्थिति",
+        "index_status_sub": "रेफरेंस इमेज अपने-आप जांची और इंडेक्स की जाती हैं।",
+        "rebuilt": "शुरू होते समय फिर से बनाया गया",
+        "ready": "पहचान के लिए तैयार",
+        "waiting": "डेटासेट की प्रतीक्षा",
+        "supported": "समर्थित नस्लें",
+        "supported_copy": "शुरुआती समर्थन में प्रमुख भारतीय गाय और भैंस नस्लें शामिल हैं।",
+        "workflow_note": "data/reference_images/<breed_name>/ में और तस्वीरें जोड़ें। ऐप शुरू होते ही इंडेक्स अपने-आप बना देगा।",
+        "upload_title": "तस्वीर अपलोड करें और जांचें",
+        "upload_copy": "जानवर की साफ साइड या प्रोफाइल फोटो दें। समान रोशनी और कम पृष्ठभूमि शोर से परिणाम बेहतर मिलते हैं।",
+        "upload_label": "तस्वीर अपलोड करें",
+        "prediction_count": "कितनी भविष्यवाणियां दिखानी हैं",
+        "upload_caption": "अपलोड की गई तस्वीर",
+        "predict": "नस्ल पहचानें",
+        "spinner": "तस्वीर का विश्लेषण किया जा रहा है और रेफरेंस नस्लों से तुलना हो रही है...",
+        "no_index": "उपयोग योग्य रेफरेंस इंडेक्स नहीं मिला। data/reference_images/<breed_name>/ में नस्ल की तस्वीरें जोड़ें और ऐप फिर से शुरू करें।",
+        "most_likely": "सबसे संभावित मिलान",
+        "confidence": "विश्वास स्तर",
+        "match_confidence": "मिलान विश्वास स्तर",
+        "insight_title": "मैदान में पहचान का संकेत",
+        "upload_prompt": "पहचान शुरू करने के लिए गाय या भैंस की तस्वीर अपलोड करें।",
+        "field_guidance": "मैदानी सुझाव",
+        "field_guidance_copy": "यह प्रारंभिक ऐप आपकी स्थानीय नस्ल लाइब्रेरी से तुलना करता है। बेहतर परिणाम के लिए हर नस्ल फ़ोल्डर में एक जैसे कोणों से कई साफ तस्वीरें रखें। अधिक सटीकता के लिए आगे चलकर बड़े लेबल्ड डेटासेट पर अलग मॉडल प्रशिक्षित किया जा सकता है।",
+        "offline_cnn": "ऑफलाइन मोड सक्रिय है: लोकल CNN फीचर एक्सट्रैक्टर लोड हो गया है।",
+        "offline_hand": "ऑफलाइन मोड सक्रिय है: बिल्ट-इन हैंडक्राफ्टेड इमेज फीचर उपयोग हो रहे हैं। इंटरनेट की जरूरत नहीं है।",
+        "backend_cnn": "लोकल CNN एक्सट्रैक्टर",
+        "backend_hand": "हैंडक्राफ्टेड ऑफलाइन एक्सट्रैक्टर",
+        "breed_fallback": "यहां बाद में और नस्ल जानकारी जोड़ी जा सकती है।",
+    },
+    "mr": {
+        "page_title": "पशुपहचान",
+        "lang": "भाषा",
+        "hero_kicker": "भारतीय पशुधन दृष्टी",
+        "hero_title": "पशुपहचान",
+        "hero_copy": "भारतीय गायी आणि म्हशींच्या जाती ओळखण्यासाठी जलद ऑफलाइन अंदाज, जे शेतकरी, विद्यार्थी आणि पशुपालन कार्यकर्त्यांसाठी उपयुक्त आहे.",
+        "indexed_breeds": "नोंदलेल्या जाती",
+        "indexed_breeds_sub": "तुलनेसाठी उपलब्ध जातींचे फोल्डर.",
+        "recognition_mode": "ओळख मोड",
+        "recognition_mode_sub": "हे अॅप ऑफलाइन चालते आणि कमी नेटवर्कमध्येही उपयोगी राहते.",
+        "index_status": "इंडेक्स स्थिती",
+        "index_status_sub": "रेफरन्स फोटो आपोआप तपासले जातात आणि इंडेक्स तयार होतो.",
+        "rebuilt": "सुरुवातीला पुन्हा तयार",
+        "ready": "अंदाजासाठी तयार",
+        "waiting": "डेटासेटची वाट पाहत आहे",
+        "supported": "समर्थित जाती",
+        "supported_copy": "प्राथमिक समर्थनात प्रमुख भारतीय गायी आणि म्हशींच्या जाती आहेत.",
+        "workflow_note": "data/reference_images/<breed_name>/ मध्ये अधिक फोटो जोडा. अॅप सुरू होताच इंडेक्स आपोआप तयार होईल.",
+        "upload_title": "फोटो अपलोड करा आणि तपासा",
+        "upload_copy": "प्राण्याचा स्पष्ट बाजूचा किंवा प्रोफाइल फोटो वापरा. सारखी प्रकाशव्यवस्था आणि कमी पार्श्वभूमी गोंधळ यामुळे परिणाम सुधारतात.",
+        "upload_label": "फोटो अपलोड करा",
+        "prediction_count": "किती अंदाज दाखवायचे",
+        "upload_caption": "अपलोड केलेला फोटो",
+        "predict": "जात ओळखा",
+        "spinner": "फोटोचे विश्लेषण करून रेफरन्स जातींशी तुलना केली जात आहे...",
+        "no_index": "उपयोगी रेफरन्स इंडेक्स सापडला नाही. data/reference_images/<breed_name>/ मध्ये जातीचे फोटो जोडा आणि अॅप पुन्हा सुरू करा.",
+        "most_likely": "सर्वात संभाव्य जुळणी",
+        "confidence": "विश्वास पातळी",
+        "match_confidence": "जुळणी विश्वास पातळी",
+        "insight_title": "मैदानी ओळखीचा संकेत",
+        "upload_prompt": "ओळख सुरू करण्यासाठी गाय किंवा म्हशीचा फोटो अपलोड करा.",
+        "field_guidance": "मैदानी मार्गदर्शन",
+        "field_guidance_copy": "हे प्राथमिक अॅप तुमच्या स्थानिक जातींच्या लायब्ररीशी तुलना करते. चांगल्या परिणामांसाठी प्रत्येक जातीच्या फोल्डरमध्ये एकसारख्या कोनातील अनेक स्पष्ट फोटो ठेवा. अधिक अचूकतेसाठी पुढील टप्प्यात मोठ्या लेबल्ड डेटासेटवर स्वतंत्र मॉडेल प्रशिक्षित करता येईल.",
+        "offline_cnn": "ऑफलाइन मोड सक्रिय: लोकल CNN फीचर एक्स्ट्रॅक्टर लोड झाला आहे.",
+        "offline_hand": "ऑफलाइन मोड सक्रिय: अंगभूत हँडक्राफ्टेड इमेज फीचर्स वापरले जात आहेत. इंटरनेटची गरज नाही.",
+        "backend_cnn": "लोकल CNN एक्स्ट्रॅक्टर",
+        "backend_hand": "हँडक्राफ्टेड ऑफलाइन एक्स्ट्रॅक्टर",
+        "breed_fallback": "येथे पुढे अधिक जातीची माहिती जोडता येईल.",
+    },
+}
+
 INDIAN_CATTLE_BREEDS = [
     "Gir",
     "Sahiwal",
@@ -58,99 +184,24 @@ BREED_DETAILS = {
 
 BREED_INSIGHTS = {
     "Gir": {
-        "title": "Signature field clue",
         "trait": "Long pendulous ears with a prominent domed forehead are strong visual markers.",
         "value": "Well known for dairy strength and heat tolerance in hot regions.",
     },
     "Sahiwal": {
-        "title": "Signature field clue",
         "trait": "Reddish coat tone with a deep body and calm dairy-type build.",
         "value": "One of the most respected indigenous dairy breeds in the subcontinent.",
     },
-    "Rathi": {
-        "title": "Signature field clue",
-        "trait": "Balanced body frame suited to both milk and hardy village management.",
-        "value": "Useful where farmers want a dual-purpose native breed.",
-    },
-    "Tharparkar": {
-        "title": "Signature field clue",
-        "trait": "Light grey or white body adapted to dry and desert-like conditions.",
-        "value": "Recognized for endurance under scarce water and tough climates.",
-    },
-    "Red Sindhi": {
-        "title": "Signature field clue",
-        "trait": "Deep reddish coloration with a compact dairy-oriented build.",
-        "value": "Performs well in hot regions and low-input systems.",
-    },
-    "Kankrej": {
-        "title": "Signature field clue",
-        "trait": "Large, powerful frame with a characteristic lyre-shaped horn profile.",
-        "value": "Strong dual-purpose breed with both milk and draught importance.",
-    },
-    "Ongole": {
-        "title": "Signature field clue",
-        "trait": "Tall muscular body with a strong hump and broad stance.",
-        "value": "Highly valued for strength and adaptation to tropical conditions.",
-    },
-    "Hariana": {
-        "title": "Signature field clue",
-        "trait": "Clean body lines with a practical draught-type appearance.",
-        "value": "Traditionally appreciated for work capacity and moderate milk output.",
-    },
-    "Hallikar": {
-        "title": "Signature field clue",
-        "trait": "Agile lean frame with a distinctly active draught-breed look.",
-        "value": "Best known historically for speed, endurance, and field work.",
-    },
-    "Deoni": {
-        "title": "Signature field clue",
-        "trait": "Often spotted or patchy coat with a sturdy dual-purpose build.",
-        "value": "Performs well in village systems needing both milk and resilience.",
-    },
     "Murrah": {
-        "title": "Signature field clue",
         "trait": "Jet-black body with tightly curled horns is the classic Murrah marker.",
         "value": "Top Indian buffalo breed for high milk production potential.",
     },
-    "Jaffarabadi": {
-        "title": "Signature field clue",
-        "trait": "Massive body and heavy drooping horns create a very distinct silhouette.",
-        "value": "Large buffalo breed valued for strength and dairy utility.",
-    },
-    "Mehsana": {
-        "title": "Signature field clue",
-        "trait": "Medium-to-large dairy buffalo with a refined Murrah-Surti type appearance.",
-        "value": "Known for stable milk yield in organized dairy systems.",
-    },
-    "Bhadawari": {
-        "title": "Signature field clue",
-        "trait": "Coppery sheen on the coat can help distinguish this breed visually.",
-        "value": "Milk is often noted for comparatively rich fat content.",
-    },
-    "Surti": {
-        "title": "Signature field clue",
-        "trait": "Sickle-shaped horns and a more compact buffalo body are helpful cues.",
-        "value": "A calm dairy buffalo popular in western India.",
-    },
-    "Nili-Ravi": {
-        "title": "Signature field clue",
-        "trait": "Large dairy buffalo often recognized by white markings on forehead or tail switch.",
-        "value": "Strong dairy breed with a well-established milk reputation.",
+    "Kankrej": {
+        "trait": "Large, powerful frame with a characteristic lyre-shaped horn profile.",
+        "value": "Strong dual-purpose breed with both milk and draught importance.",
     },
     "Pandharpuri": {
-        "title": "Signature field clue",
         "trait": "Very long sword-like horns make this buffalo visually striking.",
         "value": "Adapted to regional conditions in Maharashtra.",
-    },
-    "Nagpuri": {
-        "title": "Signature field clue",
-        "trait": "Long flat horns and hardy frame suit drier environments.",
-        "value": "Resilient breed for hot and semi-arid landscapes.",
-    },
-    "Toda": {
-        "title": "Signature field clue",
-        "trait": "Compact hill-adapted buffalo type associated with upland grazing landscapes.",
-        "value": "Culturally distinctive breed tied to the Nilgiri highlands.",
     },
 }
 
@@ -161,11 +212,9 @@ INDEX_PATH = Path("models/reference_index.json")
 def needs_index_rebuild(reference_root: Path, index_path: Path) -> bool:
     if not index_path.exists():
         return True
-
     image_files = collect_images(reference_root) if reference_root.exists() else []
     if not image_files:
         return False
-
     latest_image_time = max(path.stat().st_mtime for path in image_files)
     return index_path.stat().st_mtime < latest_image_time
 
@@ -173,22 +222,19 @@ def needs_index_rebuild(reference_root: Path, index_path: Path) -> bool:
 def ensure_reference_index() -> tuple[bool, int]:
     if not REFERENCE_ROOT.exists():
         return False, 0
-
     image_files = collect_images(REFERENCE_ROOT)
     if not image_files:
         return False, 0
-
     if needs_index_rebuild(REFERENCE_ROOT, INDEX_PATH):
         index = build_reference_index(REFERENCE_ROOT, INDEX_PATH)
         return True, len(index)
-
     recognizer = BreedRecognizer(index_path=str(INDEX_PATH))
     return False, len(recognizer.reference_vectors)
 
 
 def render_hero_art() -> str:
     return """
-    <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of a cow standing in an Indian farm field">
+    <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cow standing in an Indian farm field">
       <defs>
         <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stop-color="#82cfff"/>
@@ -212,26 +258,12 @@ def render_hero_art() -> str:
       <path d="M0 236C104 194 185 220 254 206C340 189 401 145 484 156C552 166 600 206 640 194V420H0Z" fill="url(#hill)"/>
       <path d="M0 295C88 279 144 306 230 295C305 286 360 250 428 248C511 246 568 284 640 270V420H0Z" fill="url(#field)"/>
       <path d="M0 330C81 311 145 340 210 322C278 303 334 280 420 293C508 307 566 344 640 325V420H0Z" fill="#6d9d43" opacity="0.75"/>
-      <path d="M36 258L87 173L138 258Z" fill="#7b583c"/>
-      <rect x="67" y="258" width="40" height="55" rx="6" fill="#b5733a"/>
-      <rect x="84" y="280" width="10" height="33" fill="#5f3a25"/>
-      <path d="M494 224L541 152L588 224Z" fill="#6d4d36"/>
-      <rect x="523" y="224" width="35" height="44" rx="5" fill="#cf8d48"/>
-      <g opacity="0.24">
-        <circle cx="106" cy="66" r="18" fill="#ffffff"/>
-        <circle cx="131" cy="63" r="24" fill="#ffffff"/>
-        <circle cx="157" cy="68" r="17" fill="#ffffff"/>
-      </g>
       <g transform="translate(150 165)">
         <ellipse cx="158" cy="120" rx="132" ry="78" fill="url(#cowBody)"/>
         <ellipse cx="259" cy="86" rx="56" ry="49" fill="url(#cowBody)"/>
-        <ellipse cx="274" cy="104" rx="18" ry="14" fill="#f0b59e"/>
-        <circle cx="280" cy="104" r="3.2" fill="#6f3f34"/>
-        <circle cx="236" cy="82" r="5.5" fill="#182447"/>
         <path d="M248 51L276 28L271 62Z" fill="#be8750"/>
         <path d="M224 54L193 30L207 68Z" fill="#be8750"/>
-        <path d="M26 118Q-5 92 13 61" stroke="#7b5b44" stroke-width="8" stroke-linecap="round" fill="none"/>
-        <path d="M272 116Q308 129 324 158" stroke="#be8750" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <circle cx="236" cy="82" r="5.5" fill="#182447"/>
         <path d="M116 82C130 59 171 59 184 83C165 99 136 104 116 82Z" fill="#c98546"/>
         <path d="M172 128C187 111 223 112 233 142C212 157 184 155 172 128Z" fill="#c98546"/>
         <path d="M87 137C97 118 125 116 140 135C123 149 100 151 87 137Z" fill="#c98546"/>
@@ -239,10 +271,7 @@ def render_hero_art() -> str:
         <rect x="158" y="193" width="18" height="106" rx="9" fill="#7b5b44"/>
         <rect x="236" y="186" width="18" height="113" rx="9" fill="#7b5b44"/>
         <rect x="286" y="182" width="18" height="117" rx="9" fill="#7b5b44"/>
-        <path d="M182 160C197 149 224 150 237 167L240 193H179Z" fill="#f5dec8"/>
-        <path d="M186 193H234V218C234 228 223 235 210 235C197 235 186 228 186 218Z" fill="#f0b59e"/>
       </g>
-      <path d="M18 336C89 327 134 350 194 343C253 336 295 306 356 306C425 306 474 336 542 334C586 333 612 326 640 319" stroke="#87b75d" stroke-width="3" stroke-linecap="round" opacity="0.48" fill="none"/>
     </svg>
     """
 
@@ -251,257 +280,107 @@ def inject_styles() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
-
-        :root {
-            --ink: #1b2440;
-            --muted: #5d6486;
-            --sand: #fff5dd;
-            --leaf: #2f7d4f;
-            --rust: #ef6a3c;
-            --gold: #f4b942;
-            --berry: #d94f70;
-            --sky: #4ba3f2;
-            --panel: rgba(255, 252, 245, 0.82);
-            --line: rgba(27, 36, 64, 0.09);
-        }
-
-        html, body, [class*="css"] {
-            font-family: 'Manrope', sans-serif;
-        }
-
         .stApp {
             background:
                 radial-gradient(circle at top right, rgba(244, 185, 66, 0.30), transparent 26%),
                 radial-gradient(circle at left 18%, rgba(75, 163, 242, 0.18), transparent 24%),
                 radial-gradient(circle at bottom right, rgba(217, 79, 112, 0.16), transparent 22%),
                 linear-gradient(180deg, #fff7e7 0%, #fffdf7 46%, #f8f0ff 100%);
-            color: var(--ink);
         }
-
         .block-container {
-            padding-top: 2rem;
+            padding-top: 1.5rem;
             padding-bottom: 3rem;
         }
-
-        .hero-shell {
-            background:
-                linear-gradient(135deg, rgba(255,255,255,0.90), rgba(255,243,211,0.88)),
-                linear-gradient(120deg, rgba(75,163,242,0.08), rgba(217,79,112,0.08));
-            border: 1px solid var(--line);
-            border-radius: 28px;
-            padding: 2rem;
-            box-shadow: 0 18px 60px rgba(77, 63, 33, 0.14);
-            margin-bottom: 1.4rem;
+        .hero-shell, .panel-shell, .metric-card, .hero-art-shell, .result-hero, .insight-card {
+            border-radius: 24px;
+            border: 1px solid rgba(27, 36, 64, 0.09);
+            box-shadow: 0 12px 32px rgba(29, 41, 64, 0.08);
         }
-
+        .hero-shell, .panel-shell, .metric-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,248,236,0.86));
+            padding: 1.3rem;
+        }
+        .hero-art-shell {
+            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,248,236,0.90));
+            padding: 0.7rem;
+        }
         .hero-kicker {
             display: inline-block;
-            font-size: 0.8rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            font-weight: 800;
-            color: var(--leaf);
-            background: linear-gradient(135deg, rgba(47, 125, 79, 0.14), rgba(75, 163, 242, 0.12));
+            padding: 0.4rem 0.8rem;
             border-radius: 999px;
-            padding: 0.45rem 0.8rem;
-            margin-bottom: 1rem;
+            background: linear-gradient(135deg, rgba(47,125,79,0.14), rgba(75,163,242,0.12));
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #2f7d4f;
         }
-
         .hero-title {
-            font-size: clamp(2.3rem, 4vw, 4.2rem);
-            line-height: 0.95;
+            font-size: clamp(2.2rem, 4vw, 4rem);
             font-weight: 800;
             color: #17213d;
-            margin: 0 0 0.9rem 0;
-            max-width: 9.5em;
+            margin: 0.8rem 0;
         }
-
-        .hero-copy {
-            color: var(--muted);
-            font-size: 1.05rem;
-            line-height: 1.7;
-            max-width: 48rem;
-            margin: 0;
+        .hero-copy, .section-copy, .metric-sub, .result-copy, .insight-value {
+            color: #5d6486;
+            line-height: 1.6;
         }
-
-        .hero-art-shell {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,244,224,0.90));
-            border: 1px solid var(--line);
-            border-radius: 28px;
-            padding: 0.7rem;
-            box-shadow: 0 18px 46px rgba(29, 41, 64, 0.12);
-            height: 100%;
-        }
-
-        .hero-art-shell svg {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 22px;
-        }
-
-        .metric-card {
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,247,231,0.88));
-            border: 1px solid var(--line);
-            border-radius: 22px;
-            padding: 1rem 1.1rem;
-            min-height: 126px;
-            box-shadow: 0 12px 36px rgba(29, 41, 64, 0.08);
-        }
-
-        .metric-label {
-            color: var(--muted);
+        .metric-label, .result-label, .insight-title {
+            color: #5d6486;
             font-size: 0.82rem;
             text-transform: uppercase;
             letter-spacing: 0.12em;
             font-weight: 700;
         }
-
-        .metric-value {
+        .metric-value, .result-breed {
             color: #182447;
-            font-size: 1.9rem;
             font-weight: 800;
-            margin-top: 0.45rem;
         }
-
-        .metric-sub {
-            color: var(--muted);
-            font-size: 0.92rem;
-            margin-top: 0.4rem;
-            line-height: 1.45;
+        .metric-value {
+            font-size: 1.7rem;
+            margin-top: 0.35rem;
         }
-
-        .panel-shell {
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,250,240,0.82));
-            border: 1px solid var(--line);
-            border-radius: 24px;
-            padding: 1.35rem;
-            box-shadow: 0 12px 34px rgba(29, 41, 64, 0.08);
-        }
-
         .section-title {
             font-size: 1.1rem;
             font-weight: 800;
-            color: var(--ink);
-            margin-bottom: 0.2rem;
+            color: #1b2440;
         }
-
-        .section-copy {
-            color: var(--muted);
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
-
-        .result-hero {
-            background:
-                linear-gradient(135deg, rgba(47, 125, 79, 0.15), rgba(244, 185, 66, 0.24), rgba(75, 163, 242, 0.14));
-            border: 1px solid rgba(47, 125, 79, 0.16);
-            border-radius: 22px;
-            padding: 1.2rem 1.25rem;
-            margin-bottom: 1rem;
-        }
-
-        .result-label {
-            color: var(--muted);
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            font-weight: 700;
-        }
-
-        .result-breed {
-            color: #16203b;
-            font-size: 2rem;
-            font-weight: 800;
-            margin-top: 0.4rem;
-        }
-
-        .result-copy {
-            color: var(--muted);
-            line-height: 1.6;
-            margin-top: 0.45rem;
-        }
-
-        .insight-card {
-            background: linear-gradient(135deg, rgba(75, 163, 242, 0.14), rgba(244, 185, 66, 0.22), rgba(47, 125, 79, 0.14));
-            border: 1px solid rgba(27, 36, 64, 0.10);
-            border-radius: 20px;
-            padding: 1rem 1.1rem;
-            margin: 0.85rem 0 1rem 0;
-        }
-
-        .insight-title {
-            color: var(--ink);
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            font-weight: 800;
-        }
-
-        .insight-trait {
-            color: #16203b;
-            font-size: 1.05rem;
-            font-weight: 700;
-            line-height: 1.55;
-            margin-top: 0.45rem;
-        }
-
-        .insight-value {
-            color: var(--muted);
-            line-height: 1.6;
-            margin-top: 0.45rem;
-        }
-
         .breed-chip {
             display: inline-block;
             margin: 0.25rem 0.35rem 0 0;
             padding: 0.45rem 0.7rem;
             border-radius: 999px;
-            background: linear-gradient(135deg, rgba(75, 163, 242, 0.14), rgba(217, 79, 112, 0.14));
-            color: var(--ink);
+            background: linear-gradient(135deg, rgba(75,163,242,0.14), rgba(217,79,112,0.14));
+            color: #1b2440;
             font-size: 0.88rem;
             font-weight: 600;
         }
-
         .workflow-note {
-            border-left: 4px solid var(--rust);
+            margin-top: 0.8rem;
             padding: 0.85rem 1rem;
-            background: linear-gradient(135deg, rgba(239, 106, 60, 0.10), rgba(244, 185, 66, 0.12));
+            border-left: 4px solid #ef6a3c;
+            background: linear-gradient(135deg, rgba(239,106,60,0.10), rgba(244,185,66,0.12));
             border-radius: 12px;
-            color: var(--ink);
-            margin-top: 0.75rem;
         }
-
-        div[data-testid="stFileUploaderDropzone"] {
-            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,249,255,0.95));
-            border: 1px dashed rgba(75, 163, 242, 0.42);
-            border-radius: 20px;
+        .result-hero {
+            background: linear-gradient(135deg, rgba(47,125,79,0.15), rgba(244,185,66,0.24), rgba(75,163,242,0.14));
+            padding: 1.2rem 1.25rem;
+            margin-bottom: 1rem;
         }
-
+        .insight-card {
+            background: linear-gradient(135deg, rgba(75,163,242,0.14), rgba(244,185,66,0.22), rgba(47,125,79,0.14));
+            padding: 1rem 1.1rem;
+            margin: 0.85rem 0 1rem 0;
+        }
         .stButton > button {
-            background: linear-gradient(135deg, var(--rust), var(--berry), var(--gold));
+            background: linear-gradient(135deg, #ef6a3c, #d94f70, #f4b942);
             color: white;
             border: none;
             border-radius: 14px;
-            padding: 0.72rem 1.1rem;
             font-weight: 800;
-            box-shadow: 0 14px 28px rgba(217, 79, 112, 0.24);
         }
-
-        .stButton > button:hover {
-            background: linear-gradient(135deg, #d75629, #c73f61, #e2a22d);
-        }
-
         div[data-testid="stProgressBar"] > div > div > div {
-            background: linear-gradient(90deg, var(--leaf), var(--sky), var(--gold));
-        }
-
-        div[data-testid="stAlert"] {
-            border-radius: 18px;
-            border: 1px solid rgba(27, 36, 64, 0.08);
+            background: linear-gradient(90deg, #2f7d4f, #4ba3f2, #f4b942);
         }
         </style>
         """,
@@ -512,6 +391,9 @@ def inject_styles() -> None:
 st.set_page_config(page_title="पशुपहचान", layout="wide")
 inject_styles()
 
+language_name = st.selectbox("Language", options=list(LANGUAGE_OPTIONS.keys()), index=0)
+t = TEXT[LANGUAGE_OPTIONS[language_name]]
+
 rebuilt_index, indexed_breeds = ensure_reference_index()
 
 if "recognizer" not in st.session_state:
@@ -520,19 +402,17 @@ elif rebuilt_index:
     st.session_state.recognizer = BreedRecognizer(index_path=str(INDEX_PATH))
 
 recognizer: BreedRecognizer = st.session_state.recognizer
-backend_label = "Local CNN Extractor" if recognizer.backend == "offline-cnn" else "Handcrafted Offline Extractor"
+backend_label = t["backend_cnn"] if recognizer.backend == "offline-cnn" else t["backend_hand"]
+index_status = t["rebuilt"] if rebuilt_index else t["ready"] if indexed_breeds > 0 else t["waiting"]
 
 hero_col, art_col = st.columns([1.2, 0.95], gap="large")
 with hero_col:
     st.markdown(
-        """
+        f"""
         <div class="hero-shell">
-            <div class="hero-kicker">Indian Livestock Vision</div>
-            <div class="hero-title">पशुपहचान</div>
-            <p class="hero-copy">
-                Breed recognition for Indian cattle and buffaloes with fast offline predictions for field teams,
-                students, and livestock extension workers.
-            </p>
+            <div class="hero-kicker">{t["hero_kicker"]}</div>
+            <div class="hero-title">{t["hero_title"]}</div>
+            <div class="hero-copy">{t["hero_copy"]}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -545,9 +425,9 @@ with metric_col1:
     st.markdown(
         f"""
         <div class="metric-card">
-            <div class="metric-label">Indexed Breeds</div>
+            <div class="metric-label">{t["indexed_breeds"]}</div>
             <div class="metric-value">{indexed_breeds}</div>
-            <div class="metric-sub">The number of breed folders currently available for matching.</div>
+            <div class="metric-sub">{t["indexed_breeds_sub"]}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -556,83 +436,70 @@ with metric_col2:
     st.markdown(
         f"""
         <div class="metric-card">
-            <div class="metric-label">Recognition Mode</div>
-            <div class="metric-value" style="font-size:1.35rem;">{backend_label}</div>
-            <div class="metric-sub">Runs offline and keeps inference available even with unstable connectivity.</div>
+            <div class="metric-label">{t["recognition_mode"]}</div>
+            <div class="metric-value" style="font-size:1.25rem;">{backend_label}</div>
+            <div class="metric-sub">{t["recognition_mode_sub"]}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 with metric_col3:
-    index_status = "Rebuilt at startup" if rebuilt_index else "Ready for prediction" if indexed_breeds > 0 else "Waiting for dataset"
     st.markdown(
         f"""
         <div class="metric-card">
-            <div class="metric-label">Index Status</div>
-            <div class="metric-value" style="font-size:1.35rem;">{index_status}</div>
-            <div class="metric-sub">The app checks reference images and updates its local index automatically.</div>
+            <div class="metric-label">{t["index_status"]}</div>
+            <div class="metric-value" style="font-size:1.25rem;">{index_status}</div>
+            <div class="metric-sub">{t["index_status_sub"]}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+if recognizer.backend == "offline-cnn":
+    st.success(t["offline_cnn"])
+else:
+    st.warning(t["offline_hand"])
 
 main_col, side_col = st.columns([1.45, 0.9], gap="large")
 
 with side_col:
     st.markdown('<div class="panel-shell">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">Supported breeds</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-copy">The starter dataset is organized into major Indian cattle and buffalo breeds.</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="section-title">{t["supported"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="section-copy">{t["supported_copy"]}</div>', unsafe_allow_html=True)
     st.markdown("".join(f'<span class="breed-chip">{breed}</span>' for breed in INDIAN_CATTLE_BREEDS), unsafe_allow_html=True)
     st.markdown("".join(f'<span class="breed-chip">{breed}</span>' for breed in INDIAN_BUFFALO_BREEDS), unsafe_allow_html=True)
-    st.markdown(
-        """
-        <div class="workflow-note">
-            Add more images inside <code>data/reference_images/&lt;breed_name&gt;/</code>.
-            The app will rebuild its breed index automatically on startup.
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="workflow-note">{t["workflow_note"]}</div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 with main_col:
     st.markdown('<div class="panel-shell">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">Upload and analyze</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-copy">Use a side-view or near-profile image with the animal clearly visible. Similar lighting and less background clutter improve matching.</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="section-title">{t["upload_title"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="section-copy">{t["upload_copy"]}</div>', unsafe_allow_html=True)
 
-    uploaded = st.file_uploader("Upload image", type=["jpg", "jpeg", "png", "webp"], label_visibility="visible")
-    top_k = st.slider("Number of predictions", min_value=1, max_value=5, value=3)
+    uploaded = st.file_uploader(t["upload_label"], type=["jpg", "jpeg", "png", "webp"])
+    top_k = st.slider(t["prediction_count"], min_value=1, max_value=5, value=3)
 
     if uploaded is not None:
         image = Image.open(uploaded)
-        st.image(image, caption="Uploaded field image", use_container_width=True)
+        st.image(image, caption=t["upload_caption"], use_container_width=True)
 
-        if st.button("Predict Breed", type="primary"):
-            with st.spinner("Analyzing image and comparing with reference breeds..."):
+        if st.button(t["predict"], type="primary"):
+            with st.spinner(t["spinner"]):
                 predictions = recognizer.predict(image, top_k=top_k)
 
             if not predictions:
-                st.error(
-                    "No usable reference index was found. Add breed images to "
-                    "`data/reference_images/<breed_name>/` and restart the app."
-                )
+                st.error(t["no_index"])
             else:
                 best = predictions[0]
                 insight = BREED_INSIGHTS.get(best.breed)
                 st.markdown(
                     f"""
                     <div class="result-hero">
-                        <div class="result-label">Most likely match</div>
+                        <div class="result-label">{t["most_likely"]}</div>
                         <div class="result-breed">{best.breed}</div>
                         <div class="result-copy">
-                            Confidence: {best.confidence * 100:.1f}%<br>
-                            {BREED_DETAILS.get(best.breed, "Breed summary will appear here once more metadata is added.")}
+                            {t["confidence"]}: {best.confidence * 100:.1f}%<br>
+                            {BREED_DETAILS.get(best.breed, t["breed_fallback"])}
                         </div>
                     </div>
                     """,
@@ -643,7 +510,7 @@ with main_col:
                     st.markdown(
                         f"""
                         <div class="insight-card">
-                            <div class="insight-title">{insight["title"]}</div>
+                            <div class="insight-title">{t["insight_title"]}</div>
                             <div class="insight-trait">{insight["trait"]}</div>
                             <div class="insight-value">{insight["value"]}</div>
                         </div>
@@ -651,27 +518,22 @@ with main_col:
                         unsafe_allow_html=True,
                     )
 
-                for index, pred in enumerate(predictions, start=1):
-                    st.markdown(f"**{index}. {pred.breed}**")
-                    st.progress(float(pred.confidence), text=f"{pred.confidence * 100:.1f}% match confidence")
+                for idx, pred in enumerate(predictions, start=1):
+                    st.markdown(f"**{idx}. {pred.breed}**")
+                    st.progress(float(pred.confidence), text=f"{pred.confidence * 100:.1f}% {t['match_confidence']}")
                     detail = BREED_DETAILS.get(pred.breed)
                     if detail:
                         st.caption(detail)
-
     else:
-        st.info("Upload a cattle or buffalo image to begin recognition.")
+        st.info(t["upload_prompt"])
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
-    """
+    f"""
     <div class="panel-shell" style="margin-top: 1.3rem;">
-        <div class="section-title">Field guidance</div>
-        <div class="section-copy">
-            This baseline app compares images against your local breed library. It works best when each breed folder has
-            multiple clear examples from similar angles. For production-grade accuracy, the next step would be training
-            a dedicated classifier on a larger labeled dataset.
-        </div>
+        <div class="section-title">{t["field_guidance"]}</div>
+        <div class="section-copy">{t["field_guidance_copy"]}</div>
     </div>
     """,
     unsafe_allow_html=True,
