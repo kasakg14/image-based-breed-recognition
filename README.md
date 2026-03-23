@@ -58,7 +58,8 @@ streamlit run app.py
 
 - No internet is required to run predictions once dependencies are installed.
 - Add breed images into `data/reference_images/<breed_name>/`.
-- Rebuild the index after adding or changing dataset images:
+- The app can auto-build the index on startup when deployed.
+- For local development, you can still rebuild manually after adding or changing dataset images:
 
 ```bash
 python -m scripts.build_index
