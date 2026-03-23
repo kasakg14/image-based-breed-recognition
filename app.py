@@ -90,50 +90,61 @@ def ensure_reference_index() -> tuple[bool, int]:
 
 def render_hero_art() -> str:
     return """
-    <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of Indian cattle and buffalo landscape">
+    <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of a cow standing in an Indian farm field">
       <defs>
         <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#8fd0ff"/>
-          <stop offset="100%" stop-color="#fff7e0"/>
+          <stop offset="0%" stop-color="#82cfff"/>
+          <stop offset="100%" stop-color="#fff6dd"/>
         </linearGradient>
-        <linearGradient id="ground" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stop-color="#7fbf6e"/>
-          <stop offset="100%" stop-color="#d7a14a"/>
+        <linearGradient id="hill" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#90c56d"/>
+          <stop offset="100%" stop-color="#4f9650"/>
+        </linearGradient>
+        <linearGradient id="field" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#d2b25f"/>
+          <stop offset="100%" stop-color="#7ca348"/>
+        </linearGradient>
+        <linearGradient id="cowBody" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#fff7ef"/>
+          <stop offset="100%" stop-color="#f1ddc8"/>
         </linearGradient>
       </defs>
       <rect width="640" height="420" rx="34" fill="url(#sky)"/>
-      <circle cx="535" cy="88" r="46" fill="#ffd15c" opacity="0.95"/>
-      <path d="M0 255C119 219 168 272 251 261C352 248 390 185 485 201C545 211 595 245 640 231V420H0Z" fill="url(#ground)"/>
-      <path d="M0 302C119 286 208 332 296 310C377 289 455 257 558 290C585 299 611 310 640 303V420H0Z" fill="#5a9850" opacity="0.65"/>
-      <g transform="translate(78 153)">
-        <ellipse cx="132" cy="123" rx="106" ry="66" fill="#f4f0e6"/>
-        <ellipse cx="214" cy="94" rx="49" ry="42" fill="#f4f0e6"/>
-        <path d="M220 70L249 45L242 82Z" fill="#cf7b4b"/>
-        <path d="M192 70L161 42L172 83Z" fill="#cf7b4b"/>
-        <circle cx="225" cy="92" r="5.5" fill="#1d2940"/>
-        <path d="M251 109Q274 115 288 139" stroke="#cf7b4b" stroke-width="9" stroke-linecap="round" fill="none"/>
-        <rect x="82" y="173" width="16" height="98" rx="8" fill="#76513b"/>
-        <rect x="142" y="173" width="16" height="98" rx="8" fill="#76513b"/>
-        <rect x="208" y="168" width="16" height="103" rx="8" fill="#76513b"/>
-        <rect x="254" y="165" width="16" height="106" rx="8" fill="#76513b"/>
-        <path d="M52 126Q31 89 9 99" stroke="#76513b" stroke-width="8" stroke-linecap="round" fill="none"/>
+      <circle cx="528" cy="84" r="42" fill="#ffd25e"/>
+      <path d="M0 236C104 194 185 220 254 206C340 189 401 145 484 156C552 166 600 206 640 194V420H0Z" fill="url(#hill)"/>
+      <path d="M0 295C88 279 144 306 230 295C305 286 360 250 428 248C511 246 568 284 640 270V420H0Z" fill="url(#field)"/>
+      <path d="M0 330C81 311 145 340 210 322C278 303 334 280 420 293C508 307 566 344 640 325V420H0Z" fill="#6d9d43" opacity="0.75"/>
+      <path d="M36 258L87 173L138 258Z" fill="#7b583c"/>
+      <rect x="67" y="258" width="40" height="55" rx="6" fill="#b5733a"/>
+      <rect x="84" y="280" width="10" height="33" fill="#5f3a25"/>
+      <path d="M494 224L541 152L588 224Z" fill="#6d4d36"/>
+      <rect x="523" y="224" width="35" height="44" rx="5" fill="#cf8d48"/>
+      <g opacity="0.24">
+        <circle cx="106" cy="66" r="18" fill="#ffffff"/>
+        <circle cx="131" cy="63" r="24" fill="#ffffff"/>
+        <circle cx="157" cy="68" r="17" fill="#ffffff"/>
       </g>
-      <g transform="translate(336 186)">
-        <ellipse cx="110" cy="103" rx="92" ry="59" fill="#2b324b"/>
-        <ellipse cx="183" cy="86" rx="45" ry="39" fill="#2b324b"/>
-        <path d="M153 69Q128 34 97 31" stroke="#2b324b" stroke-width="12" stroke-linecap="round" fill="none"/>
-        <path d="M211 66Q242 21 281 30" stroke="#2b324b" stroke-width="12" stroke-linecap="round" fill="none"/>
-        <circle cx="192" cy="85" r="5.5" fill="#f5f1e8"/>
-        <rect x="66" y="154" width="15" height="90" rx="7" fill="#1d2235"/>
-        <rect x="119" y="154" width="15" height="90" rx="7" fill="#1d2235"/>
-        <rect x="167" y="149" width="15" height="95" rx="7" fill="#1d2235"/>
-        <rect x="210" y="150" width="15" height="94" rx="7" fill="#1d2235"/>
+      <g transform="translate(150 165)">
+        <ellipse cx="158" cy="120" rx="132" ry="78" fill="url(#cowBody)"/>
+        <ellipse cx="259" cy="86" rx="56" ry="49" fill="url(#cowBody)"/>
+        <ellipse cx="274" cy="104" rx="18" ry="14" fill="#f0b59e"/>
+        <circle cx="280" cy="104" r="3.2" fill="#6f3f34"/>
+        <circle cx="236" cy="82" r="5.5" fill="#182447"/>
+        <path d="M248 51L276 28L271 62Z" fill="#be8750"/>
+        <path d="M224 54L193 30L207 68Z" fill="#be8750"/>
+        <path d="M26 118Q-5 92 13 61" stroke="#7b5b44" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M272 116Q308 129 324 158" stroke="#be8750" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <path d="M116 82C130 59 171 59 184 83C165 99 136 104 116 82Z" fill="#c98546"/>
+        <path d="M172 128C187 111 223 112 233 142C212 157 184 155 172 128Z" fill="#c98546"/>
+        <path d="M87 137C97 118 125 116 140 135C123 149 100 151 87 137Z" fill="#c98546"/>
+        <rect x="96" y="191" width="18" height="108" rx="9" fill="#7b5b44"/>
+        <rect x="158" y="193" width="18" height="106" rx="9" fill="#7b5b44"/>
+        <rect x="236" y="186" width="18" height="113" rx="9" fill="#7b5b44"/>
+        <rect x="286" y="182" width="18" height="117" rx="9" fill="#7b5b44"/>
+        <path d="M182 160C197 149 224 150 237 167L240 193H179Z" fill="#f5dec8"/>
+        <path d="M186 193H234V218C234 228 223 235 210 235C197 235 186 228 186 218Z" fill="#f0b59e"/>
       </g>
-      <g opacity="0.25">
-        <circle cx="95" cy="66" r="18" fill="#ffffff"/>
-        <circle cx="122" cy="66" r="22" fill="#ffffff"/>
-        <circle cx="145" cy="70" r="16" fill="#ffffff"/>
-      </g>
+      <path d="M18 336C89 327 134 350 194 343C253 336 295 306 356 306C425 306 474 336 542 334C586 333 612 326 640 319" stroke="#87b75d" stroke-width="3" stroke-linecap="round" opacity="0.48" fill="none"/>
     </svg>
     """
 
