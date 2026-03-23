@@ -1,0 +1,120 @@
+{
+  "config": {
+    "data_root": "data/reference_images",
+    "output_dir": "models/classifier",
+    "epochs": 12,
+    "batch_size": 8,
+    "learning_rate": 0.0003,
+    "train_split": 0.8,
+    "image_size": 224,
+    "seed": 42
+  },
+  "label_to_breed": {
+    "0": "Bhadawari",
+    "1": "Deoni",
+    "2": "Gir",
+    "3": "Hallikar",
+    "4": "Hariana",
+    "5": "Jaffarabadi",
+    "6": "Kankrej",
+    "7": "Mehsana",
+    "8": "Murrah",
+    "9": "Nagpuri",
+    "10": "Nili-Ravi",
+    "11": "Ongole",
+    "12": "Pandharpuri",
+    "13": "Rathi",
+    "14": "Red Sindhi",
+    "15": "Sahiwal",
+    "16": "Surti",
+    "17": "Tharparkar",
+    "18": "Toda"
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 2.957926638714679,
+      "train_accuracy": 0.05194805194805195,
+      "val_loss": 2.7621031325796377,
+      "val_accuracy": 0.21739130434782608
+    },
+    {
+      "epoch": 2,
+      "train_loss": 2.2846234464026116,
+      "train_accuracy": 0.7402597402597403,
+      "val_loss": 2.4410198253134023,
+      "val_accuracy": 0.4782608695652174
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.7927892393880076,
+      "train_accuracy": 0.9090909090909091,
+      "val_loss": 2.158673130947611,
+      "val_accuracy": 0.43478260869565216
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.3432737201839298,
+      "train_accuracy": 0.961038961038961,
+      "val_loss": 1.892463155414747,
+      "val_accuracy": 0.43478260869565216
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.9646663170356256,
+      "train_accuracy": 1.0,
+      "val_loss": 1.6768951934316885,
+      "val_accuracy": 0.43478260869565216
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.7119378687499406,
+      "train_accuracy": 0.987012987012987,
+      "val_loss": 1.5532656026923137,
+      "val_accuracy": 0.5217391304347826
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.5353722897442904,
+      "train_accuracy": 0.987012987012987,
+      "val_loss": 1.4565609175225962,
+      "val_accuracy": 0.6086956521739131
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3700078400698575,
+      "train_accuracy": 0.987012987012987,
+      "val_loss": 1.418027753415315,
+      "val_accuracy": 0.6086956521739131
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.23069825304018987,
+      "train_accuracy": 0.987012987012987,
+      "val_loss": 1.3916911301405535,
+      "val_accuracy": 0.5217391304347826
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.18615926627988938,
+      "train_accuracy": 1.0,
+      "val_loss": 1.326347916022591,
+      "val_accuracy": 0.5217391304347826
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.1441073011268269,
+      "train_accuracy": 1.0,
+      "val_loss": 1.2946179327757463,
+      "val_accuracy": 0.5652173913043478
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.09901990093194045,
+      "train_accuracy": 1.0,
+      "val_loss": 1.287069507267164,
+      "val_accuracy": 0.6086956521739131
+    }
+  ],
+  "best_val_accuracy": 0.6086956521739131
+}

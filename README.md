@@ -70,3 +70,23 @@ python -m scripts.build_index
 - Prediction quality depends heavily on reference image quality and diversity.
 - The handcrafted offline mode is lightweight and reliable, but usually less accurate than a trained classifier.
 - This is a baseline similarity system, not a fully supervised production classifier.
+
+## Training A Real Classifier
+
+To improve accuracy beyond similarity matching, train a supervised model:
+
+```bash
+python -m scripts.train_classifier --data-root data/reference_images --output-dir models/classifier
+```
+
+This saves:
+
+- `models/classifier/best_model.pt`
+- `models/classifier/training_metadata.json`
+
+Recommended dataset quality:
+
+- 50+ images per breed if possible
+- similar framing and side views
+- correctly labeled breed folders
+- balanced image counts across breeds

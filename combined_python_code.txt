@@ -1,3 +1,6 @@
+================================================================================
+FILE: C:\Users\GTC\Documents\New project\app.py
+================================================================================
 from __future__ import annotations
 
 from pathlib import Path
@@ -227,20 +230,9 @@ def ensure_reference_index() -> tuple[bool, int]:
         return False, 0
     if needs_index_rebuild(REFERENCE_ROOT, INDEX_PATH):
         index = build_reference_index(REFERENCE_ROOT, INDEX_PATH)
-        return True, len(index.get("breed_counts", {}))
+        return True, len(index)
     recognizer = BreedRecognizer(index_path=str(INDEX_PATH))
-    return False, recognizer.breed_count()
-
-
-def is_uncertain_prediction(predictions: list) -> bool:
-    if not predictions:
-        return True
-    top_confidence = predictions[0].confidence
-    if top_confidence < 0.60:
-        return True
-    if len(predictions) > 1 and (top_confidence - predictions[1].confidence) < 0.10:
-        return True
-    return False
+    return False, len(recognizer.reference_vectors)
 
 
 def render_hero_art() -> str:
@@ -503,11 +495,6 @@ with main_col:
             else:
                 best = predictions[0]
                 insight = BREED_INSIGHTS.get(best.breed)
-                if is_uncertain_prediction(predictions):
-                    st.warning(
-                        "Prediction uncertain. The top breed scores are too close or confidence is too low. "
-                        "Please use this result as a hint, not a final identification."
-                    )
                 st.markdown(
                     f"""
                     <div class="result-hero">
@@ -554,3 +541,245 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
+================================================================================
+FILE: C:\Users\GTC\Documents\New project\src\breed_recognition.py
+================================================================================
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List
+
+import numpy as np
+from PIL import Image, ImageFilter, ImageOps
+
+try:
+    import torch
+    import torchvision.models as models
+    import torchvision.transforms as transforms
+except Exception:
+    torch = None
+    models = None
+    transforms = None
+
+
+@dataclass
+class Prediction:
+    breed: str
+    confidence: float
+
+
+class BreedRecognizer:
+    def __init__(self, index_path: str = "models/reference_index.json") -> None:
+        self.index_path = Path(index_path)
+        self.reference_vectors: Dict[str, np.ndarray] = {}
+        self.backend = "offline-handcrafted"
+        self.device = "cpu"
+        self.model = None
+        self.transform = None
+        self._initialize_backend()
+        self._load_index()
+
+    def _initialize_backend(self) -> None:
+        if torch is None or models is None or transforms is None:
+            return
+
+        try:
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            model = models.efficientnet_b0(weights=None)
+            model.classifier = torch.nn.Identity()
+            model.eval()
+            model.to(self.device)
+            self.model = model
+            self.transform = transforms.Compose(
+                [
+                    transforms.Resize((224, 224)),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225],
+                    ),
+                ]
+            )
+            self.backend = "offline-cnn"
+        except Exception:
+            self.backend = "offline-handcrafted"
+            self.device = "cpu"
+            self.model = None
+            self.transform = None
+
+    def _load_index(self) -> None:
+        if not self.index_path.exists():
+            self.reference_vectors = {}
+            return
+
+        with self.index_path.open("r", encoding="utf-8") as f:
+            raw = json.load(f)
+        self.reference_vectors = {
+            breed: np.array(vector, dtype=np.float32) for breed, vector in raw.items()
+        }
+
+    def is_ready(self) -> bool:
+        return len(self.reference_vectors) > 0
+
+    def extract_embedding(self, image: Image.Image) -> np.ndarray:
+        image = image.convert("RGB")
+        if self.backend == "offline-cnn" and self.model is not None and self.transform is not None:
+            tensor = self.transform(image).unsqueeze(0).to(self.device)
+            with torch.no_grad():
+                features = self.model(tensor).squeeze(0).detach().cpu().numpy()
+            return self._normalize(features)
+
+        return self._extract_handcrafted_features(image)
+
+    def _extract_handcrafted_features(self, image: Image.Image) -> np.ndarray:
+        resized = image.resize((192, 192))
+        rgb = np.asarray(resized, dtype=np.float32) / 255.0
+
+        hist_parts: List[np.ndarray] = []
+        for channel in range(3):
+            hist, _ = np.histogram(rgb[:, :, channel], bins=16, range=(0.0, 1.0))
+            hist_parts.append(hist.astype(np.float32))
+
+        gray = ImageOps.grayscale(resized)
+        edges = gray.filter(ImageFilter.FIND_EDGES)
+        edge_array = np.asarray(edges, dtype=np.float32) / 255.0
+        edge_hist, _ = np.histogram(edge_array, bins=16, range=(0.0, 1.0))
+
+        brightness_mean = np.array([edge_array.mean()], dtype=np.float32)
+        brightness_std = np.array([edge_array.std()], dtype=np.float32)
+
+        downsample = gray.resize((16, 16))
+        texture = np.asarray(downsample, dtype=np.float32).flatten() / 255.0
+
+        features = np.concatenate(
+            hist_parts
+            + [
+                edge_hist.astype(np.float32),
+                brightness_mean,
+                brightness_std,
+                texture.astype(np.float32),
+            ]
+        )
+        return self._normalize(features)
+
+    @staticmethod
+    def _normalize(vector: np.ndarray) -> np.ndarray:
+        norm = np.linalg.norm(vector) + 1e-10
+        return vector / norm
+
+    @staticmethod
+    def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
+        return float(np.dot(a, b) / ((np.linalg.norm(a) + 1e-10) * (np.linalg.norm(b) + 1e-10)))
+
+    def predict(self, image: Image.Image, top_k: int = 3) -> List[Prediction]:
+        if not self.is_ready():
+            return []
+
+        query_embedding = self.extract_embedding(image)
+        scores: List[Prediction] = []
+        for breed, ref_vector in self.reference_vectors.items():
+            if ref_vector.shape != query_embedding.shape:
+                continue
+            sim = self._cosine_similarity(query_embedding, ref_vector)
+            conf = max(0.0, min(1.0, (sim + 1.0) / 2.0))
+            scores.append(Prediction(breed=breed, confidence=conf))
+
+        scores.sort(key=lambda x: x.confidence, reverse=True)
+        return scores[:top_k]
+
+
+================================================================================
+FILE: C:\Users\GTC\Documents\New project\scripts\build_index.py
+================================================================================
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Dict, List
+
+import numpy as np
+from PIL import Image
+
+from src.breed_recognition import BreedRecognizer
+
+
+def collect_images(folder: Path) -> List[Path]:
+    exts = {".jpg", ".jpeg", ".png", ".webp"}
+    return [p for p in folder.rglob("*") if p.suffix.lower() in exts]
+
+
+def build_reference_index(reference_root: Path, output_file: Path) -> Dict[str, List[float]]:
+    recognizer = BreedRecognizer(index_path="models/does_not_need_to_exist.json")
+
+    breed_vectors: Dict[str, np.ndarray] = {}
+    for breed_dir in sorted([p for p in reference_root.iterdir() if p.is_dir()]):
+        images = collect_images(breed_dir)
+        if not images:
+            continue
+
+        vectors: List[np.ndarray] = []
+        for image_path in images:
+            try:
+                with Image.open(image_path) as img:
+                    vectors.append(recognizer.extract_embedding(img))
+            except Exception:
+                continue
+
+        if not vectors:
+            continue
+
+        centroid = np.mean(np.stack(vectors, axis=0), axis=0)
+        centroid = centroid / (np.linalg.norm(centroid) + 1e-10)
+        breed_vectors[breed_dir.name] = centroid
+
+    serializable = {
+        breed: vector.astype(np.float32).tolist() for breed, vector in breed_vectors.items()
+    }
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with output_file.open("w", encoding="utf-8") as f:
+        json.dump(serializable, f, indent=2)
+    return serializable
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Build reference index for breed recognition.")
+    parser.add_argument(
+        "--reference-root",
+        type=Path,
+        default=Path("data/reference_images"),
+        help="Folder containing one subfolder per breed.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("models/reference_index.json"),
+        help="Where to save the generated reference index.",
+    )
+    args = parser.parse_args()
+
+    if not args.reference_root.exists():
+        raise FileNotFoundError(f"Reference folder not found: {args.reference_root}")
+
+    index = build_reference_index(args.reference_root, args.output)
+    print(f"Saved {len(index)} breed prototypes to {args.output}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+================================================================================
+FILE: C:\Users\GTC\Documents\New project\requirements.txt
+================================================================================
+streamlit==1.41.1
+torch>=2.2.0
+torchvision>=0.17.0
+Pillow>=10.3.0
+numpy>=1.26.0
+
+
